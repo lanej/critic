@@ -1,6 +1,16 @@
 module Critic::Policy
   extend ActiveSupport::Concern
 
+  def self.policies
+    @_policies ||= Hash.new { |h,k| h[k.to_s] = nil }
+  end
+
+  def self.for(resource)
+    resource_class = resource.is_a?(Class) ? resource : resource.class
+
+    policies.fetch(resource_class) { "#{resource_class}Policy".constantize }
+  end
+
   included do
 
   end
@@ -8,6 +18,13 @@ module Critic::Policy
   module ClassMethods
     def authorize(action, subject, resource, *args)
       self.new(subject, resource).authorize(action, *args)
+    end
+
+    def policy_for(*klasses)
+      klasses.each { |klass|
+        # @todo warn on re-definition
+        Critic::Policy.policies[klass] ||= self
+      }
     end
   end
 
