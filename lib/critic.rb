@@ -1,5 +1,6 @@
 require "critic/version"
+require "active_support/concern"
 
-module Critic
-  # Your code goes here...
-end
+module Critic; end
+
+require 'critic/policy'
