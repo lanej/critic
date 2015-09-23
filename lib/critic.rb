@@ -4,3 +4,4 @@ require "active_support/concern"
 module Critic; end
 
 require 'critic/policy'
+require 'critic/authorization'

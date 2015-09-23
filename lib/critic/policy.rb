@@ -8,7 +8,8 @@ module Critic::Policy
   module ClassMethods
     def authorize(action, subject, resource)
       policy_instance = self.new(subject, resource)
-      result = policy_instance.public_send("#{action}?")
+
+      Critic::Authorization.from(policy_instance, action, policy_instance.public_send("#{action}?"))
     end
   end
 
@@ -16,5 +17,9 @@ module Critic::Policy
 
   def initialize(subject, resource)
     @subject, @resource = subject, resource
+  end
+
+  def failure_message(action)
+    "#{subject.to_s} is not authorized to #{action} #{resource}"
   end
 end
