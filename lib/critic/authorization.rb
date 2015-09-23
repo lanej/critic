@@ -1,17 +1,4 @@
 class Critic::Authorization
-  def self.from(policy, action, result)
-    errors = []
-
-    case result
-    when String
-      errors << result
-    when FalseClass
-      errors << policy.failure_message(action)
-    end
-
-    Critic::Authorization.new(policy, action, errors)
-  end
-
   attr_reader :policy, :action, :errors
 
   def initialize(policy, action, errors=[])
