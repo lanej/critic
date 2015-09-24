@@ -16,21 +16,21 @@ module Critic::Controller
     policy_class = policy(resource, options)
     args         = *options[:args]
 
+    authorizing!
+
     @authorization = policy_class.authorize(action, critic, resource, *args)
 
     if @authorization.denied?
       authorization_failed!
     end
 
-    @authorization
+    @authorization.result
   end
 
   def authorize_scope(scope, options={})
     options[:action] ||= policy(scope, options).scope
 
-    authorization = authorize(scope, options)
-
-    authorization.result
+    authorize(scope, options)
   end
 
   protected
@@ -39,6 +39,20 @@ module Critic::Controller
 
   def authorization_failed!
     raise Critic::AuthorizationFailed.new(self.authorization.messages)
+  end
+
+  def authorization_missing!
+    raise Critic::AuthorizationMissing.new
+  end
+
+  def verify_authorized
+    unless true == @_authorizing
+      authorization_missing!
+    end
+  end
+
+  def authorizing!
+    @_authorizing = true
   end
 
   def policy(object, options={})

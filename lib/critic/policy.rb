@@ -61,7 +61,6 @@ module Critic::Policy
       self.authorization.result = result
     end
 
-
     case result
     when Critic::Authorization
       # user has accessed authorization directly
@@ -74,7 +73,6 @@ module Critic::Policy
       self.authorization.granted = false
       self.authorization.messages << failure_message(action)
     end
-
 
     self.authorization
   end

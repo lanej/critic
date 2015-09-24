@@ -4,7 +4,8 @@ require "active_support/core_ext/string/inflections"
 
 module Critic; end
 
-Critic::AuthorizationDenied = Class.new(StandardError)
+Critic::AuthorizationDenied  = Class.new(StandardError)
+Critic::AuthorizationMissing = Class.new(StandardError)
 
 require 'critic/policy'
 require 'critic/authorization'
