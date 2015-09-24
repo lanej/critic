@@ -1,15 +1,19 @@
 class Critic::Authorization
-  attr_reader :policy, :action, :errors
+  attr_reader :policy, :action
+  attr_accessor :messages, :granted, :result
 
-  def initialize(policy, action, errors=[])
-    @policy, @action, @errors = policy, action, errors
+  def initialize(policy, action)
+    @policy, @action = policy, action
+
+    @granted, @result = nil
+    @messages = []
   end
 
   def granted?
-    errors.empty?
+    true == @granted
   end
 
-  def void?
-    errors.any?
+  def denied?
+    false == @granted
   end
 end

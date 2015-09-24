@@ -20,15 +20,24 @@ module Critic::Policy
       self.new(subject, resource).authorize(action, *args)
     end
 
+    def authorize_scope(subject, resource, *args)
+      self.new(subject, resource).authorize_scope(*args)
+    end
+
     def policy_for(*klasses)
       klasses.each { |klass|
         # @todo warn on re-definition
         Critic::Policy.policies[klass] ||= self
       }
     end
+
+    def scope(action=nil)
+      action.nil? ? (@scope || :index) : (@scope = action)
+    end
   end
 
   attr_reader :subject, :resource, :errors
+  attr_accessor :authorization
 
   def initialize(subject, resource)
     @subject, @resource = subject, resource
@@ -40,17 +49,33 @@ module Critic::Policy
   end
 
   def authorize(action, *args)
-    method = "#{action}?"
+    self.authorization = Critic::Authorization.new(self, action)
 
-    result = public_send(method)
+    granted, result = nil
 
-    case result
-    when String
-      errors << result
-    when FalseClass
-      errors << failure_message(action)
+    begin
+      result = public_send(action)
+    rescue Critic::AuthorizationDenied
+      granted = false
+    ensure
+      self.authorization.result = result
     end
 
-    Critic::Authorization.new(self, action, errors)
+
+    case result
+    when Critic::Authorization
+      # user has accessed authorization directly
+    when TrueClass
+      self.authorization.granted = true
+    when String
+      self.authorization.granted = false
+      self.authorization.messages << result
+    when FalseClass
+      self.authorization.granted = false
+      self.authorization.messages << failure_message(action)
+    end
+
+
+    self.authorization
   end
 end

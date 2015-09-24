@@ -4,11 +4,11 @@ RSpec.describe 'policies' do
   class ChairPolicy
     include Critic::Policy
 
-    def update?
+    def update
       subject.grants.include?(resource)
     end
 
-    def show?
+    def show
       unless subject.grants.include?(resource)
         "No peeking"
       end
@@ -31,6 +31,6 @@ RSpec.describe 'policies' do
     consumer = Subject.new([])
     authorization = ChairPolicy.authorize(:show, consumer, :blah)
 
-    expect(authorization).to be_void
+    expect(authorization).to be_denied
   end
 end
