@@ -27,7 +27,11 @@ module Critic::Policy
   included do
     include ActiveSupport::Callbacks
 
-    define_callbacks :authorize
+    if ActiveSupport::VERSION::MAJOR = 3
+      define_callbacks :authorize, terminator: 'result == false || result.nil?'
+    else
+      define_callbacks :authorize, terminator: ->(target, result) { false == result || result.nil? }
+    end
   end
 
   # Policy entry points
@@ -57,14 +61,14 @@ module Critic::Policy
   def authorize(action, *args)
     self.authorization = Critic::Authorization.new(self, action)
 
-    result = nil
+    result = false
 
     begin
       run_callbacks(:authorize) { result = public_send(action, *args) }
     rescue Critic::AuthorizationDenied
       authorization.granted = false
     ensure
-      authorization.result = result
+      authorization.result = result if authorization.result.nil?
     end
 
     case result

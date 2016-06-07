@@ -18,10 +18,6 @@ RSpec.describe 'Critic::Controller' do
   class TablePolicy
     include Critic::Policy
 
-    set_callback(:authorize, :before) { |policy|
-      policy.subject.name != 'before-filter'
-    }
-
     def destroy(accept)
       accept
     end
@@ -125,6 +121,16 @@ RSpec.describe 'Critic::Controller' do
       expect {
         controller.authorize(Table.new(1), :destroy, with: false)
       }.to raise_exception(Critic::AuthorizationDenied)
+    end
+
+    it 'respects attached callbacks' do
+      TablePolicy.set_callback(:authorize, :before) { |policy| policy.resource.id != 5 }
+
+      expect {
+        controller.authorize(Table.new(5), :show)
+      }.to raise_exception(Critic::AuthorizationDenied)
+
+      expect(controller.authorize(Table.new(1), :show)).to eq(true)
     end
   end
 
