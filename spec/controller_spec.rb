@@ -85,6 +85,20 @@ RSpec.describe 'Critic::Controller' do
     end
   end
 
+  describe '#authorized' do
+    it 'returns a boolean matching authorization success' do
+      user.name = 'steve'
+      expect(controller.authorized?(Table.new(1), :show)).to eq(true)
+
+      user.name = ''
+      expect(controller.authorized?(Table.new(1), :show)).to eq(false)
+
+      user.name = 'steve'
+      allow(user).to receive(:name).and_raise(Critic::AuthorizationDenied)
+      expect(controller.authorized?(Table.new(1), :show)).to eq(false)
+    end
+  end
+
   it 'authorizes a single resource' do
     expect(controller.show).to eq(Table.new(1))
   end

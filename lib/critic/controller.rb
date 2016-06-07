@@ -24,6 +24,12 @@ module Critic::Controller
     @authorization.result
   end
 
+  def authorized?(resource, *args, **options)
+    authorize(resource, *args, **options)
+  rescue Critic::AuthorizationDenied
+    false
+  end
+
   def authorize_scope(scope, policy: policy(scope), **options)
     options[:action] ||= policy.scope
 
