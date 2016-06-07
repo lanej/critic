@@ -33,6 +33,65 @@ RSpec.describe Critic::Policy do
     expect(authorization).to be_denied
   end
 
+  describe '#authorize' do
+    let!(:policy_class) { ChairPolicy.dup }
+
+    it 'considers a nil return value as denied' do
+      policy_class.class_eval do
+        def action
+          nil
+        end
+      end
+
+      authorization = policy_class.new(nil, nil).authorize(:action)
+
+      expect(authorization.result).to eq(nil)
+      expect(authorization.granted).to eq(false)
+    end
+
+    it 'considers a false return value as denied' do
+      policy_class.class_eval do
+        def action
+          false
+        end
+      end
+
+      authorization = policy_class.new(nil, nil).authorize(:action)
+
+      expect(authorization.result).to eq(false)
+      expect(authorization.granted).to eq(false)
+    end
+
+    it 'considers an non-String return value as granted' do
+      X = Struct.new(:attr)
+
+      policy_class.class_eval do
+        def action
+          X.new(:test)
+        end
+      end
+
+      authorization = policy_class.new(nil, nil).authorize(:action)
+
+      expect(authorization.result).to eq(X.new(:test))
+      expect(authorization.granted).to eq(true)
+    end
+
+    it 'considers a String return value as an error message and denies authorization' do
+      policy_class.class_eval do
+        def action
+          "x"
+        end
+      end
+
+      authorization = policy_class.new(nil, nil).authorize(:action)
+
+      expect(authorization.result).to eq("x")
+      expect(authorization.granted).to eq(false)
+      expect(authorization.messages).to contain_exactly("x")
+    end
+  end
+
   describe '#for' do
     Chair = Class.new
     Unknown = Class.new

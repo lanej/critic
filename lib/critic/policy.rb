@@ -89,7 +89,7 @@ module Critic::Policy
     when String
       authorization.granted = false
       authorization.messages << result
-    when false
+    when nil, false
       authorization.granted = false
       authorization.messages << failure_message(action)
     else
