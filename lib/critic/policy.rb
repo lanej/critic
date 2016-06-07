@@ -36,17 +36,6 @@ module Critic::Policy
       new(subject, resource).authorize(action, *args)
     end
 
-    def authorize_scope(subject, resource, *args)
-      new(subject, resource).authorize_scope(*args)
-    end
-
-    def policy_for(*klasses)
-      klasses.each { |klass|
-        # @todo warn on re-definition
-        Critic::Policy.policies[klass] ||= self
-      }
-    end
-
     def scope(action = nil)
       action.nil? ? (@scope || :index) : (@scope = action)
     end
