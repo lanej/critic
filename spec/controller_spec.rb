@@ -44,14 +44,6 @@ RSpec.describe 'Critic::Controller' do
       @user = user
     end
 
-    def show
-      authorize table, :show
-
-      verify_authorized
-
-      table
-    end
-
     def update
       # looks like a rails controller action
       params[:action] = :update
@@ -134,13 +126,11 @@ RSpec.describe 'Critic::Controller' do
     end
   end
 
-  it 'authorizes a single resource' do
-    expect(controller.show).to eq(Table.new(1))
-  end
+  describe '#authorize_scope' do
+    it 'authorizes resource scope and returns result' do
+      [Table.new('1'), Table.new('reject'), Table.new('A')].each { |t| Table.all << t }
 
-  it 'authorizes resource scope' do
-    [Table.new('1'), Table.new('reject'), Table.new('A')].each { |t| Table.all << t }
-
-    expect(controller.authorize_scope(Table)).to contain_exactly(Table.new('1'), Table.new('A'))
+      expect(controller.authorize_scope(Table)).to contain_exactly(Table.new('1'), Table.new('A'))
+    end
   end
 end
