@@ -18,6 +18,14 @@ RSpec.describe 'Critic::Controller' do
   class TablePolicy
     include Critic::Policy
 
+    set_callback(:authorize, :before) { |policy|
+      policy.subject.name != 'before-filter'
+    }
+
+    def destroy(accept)
+      accept
+    end
+
     def show
       !subject.name.empty?
     end
@@ -58,10 +66,6 @@ RSpec.describe 'Critic::Controller' do
       verify_authorized
 
       table
-    end
-
-    def index
-      authorize_scope Table
     end
 
     protected
@@ -112,6 +116,18 @@ RSpec.describe 'Critic::Controller' do
     end
   end
 
+  describe '#authorize' do
+    it 'passes #with to the policy as arguments' do
+      expect(
+        controller.authorize(Table.new(1), :destroy, with: true)
+      ).to eq(true)
+
+      expect {
+        controller.authorize(Table.new(1), :destroy, with: false)
+      }.to raise_exception(Critic::AuthorizationDenied)
+    end
+  end
+
   it 'authorizes a single resource' do
     expect(controller.show).to eq(Table.new(1))
   end
@@ -119,6 +135,6 @@ RSpec.describe 'Critic::Controller' do
   it 'authorizes resource scope' do
     [Table.new('1'), Table.new('reject'), Table.new('A')].each { |t| Table.all << t }
 
-    expect(controller.index).to contain_exactly(Table.new('1'), Table.new('A'))
+    expect(controller.authorize_scope(Table)).to contain_exactly(Table.new('1'), Table.new('A'))
   end
 end

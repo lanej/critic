@@ -9,15 +9,10 @@ module Critic::Controller
     end
   end
 
-  def authorize(resource, *args, **options)
-    options[:action] ||= default_action || args.shift
-
-    action       = options.fetch(:action)
-    policy_class = options[:policy] || policy(resource)
-
+  def authorize(resource, action=default_action, policy: policy(resource), with: [])
     authorizing!
 
-    @authorization = policy_class.authorize(action, critic, resource, *args)
+    @authorization = policy.authorize(action, critic, resource, *with)
 
     authorization_failed! if @authorization.denied?
 
@@ -30,10 +25,10 @@ module Critic::Controller
     false
   end
 
-  def authorize_scope(scope, policy: policy(scope), **options)
-    options[:action] ||= policy.scope
+  def authorize_scope(scope, *args, action: nil, policy: policy(scope))
+    authorization_action = action || policy.scope
 
-    authorize(scope, options)
+    authorize(scope, authorization_action, *args, policy: policy)
   end
 
   protected
