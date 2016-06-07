@@ -1,9 +1,11 @@
+# frozen_string_literal: true
 class Critic::Authorization
   attr_reader :policy, :action
   attr_accessor :messages, :granted, :result
 
   def initialize(policy, action)
-    @policy, @action = policy, action
+    @policy = policy
+    @action = action
 
     @granted, @result = nil
     @messages = []

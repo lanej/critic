@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Critic::Controller
   extend ActiveSupport::Concern
 
@@ -8,26 +9,23 @@ module Critic::Controller
     end
   end
 
-  module ClassMethods
-  end
+  def authorize(resource, *args, **options)
+    set_default_action(options)
+    options[:action] ||= args.shift
 
-  def authorize(resource, options={})
-    action       = options[:action] || (defined?(params) && params.fetch(:action)) || (_,_,method = parse_caller(caller[0]); method)
+    action       = options.fetch(:action)
     policy_class = policy(resource, options)
-    args         = *options[:args]
 
     authorizing!
 
     @authorization = policy_class.authorize(action, critic, resource, *args)
 
-    if @authorization.denied?
-      authorization_failed!
-    end
+    authorization_failed! if @authorization.denied?
 
     @authorization.result
   end
 
-  def authorize_scope(scope, options={})
+  def authorize_scope(scope, options = {})
     options[:action] ||= policy(scope, options).scope
 
     authorize(scope, options)
@@ -38,7 +36,7 @@ module Critic::Controller
   attr_reader :authorization
 
   def authorization_failed!
-    raise Critic::AuthorizationFailed.new(self.authorization.messages)
+    raise Critic::AuthorizationFailed, authorization.messages
   end
 
   def authorization_missing!
@@ -46,16 +44,14 @@ module Critic::Controller
   end
 
   def verify_authorized
-    unless true == @_authorizing
-      authorization_missing!
-    end
+    authorization_missing! unless true == @_authorizing
   end
 
   def authorizing!
     @_authorizing = true
   end
 
-  def policy(object, options={})
+  def policy(object, options = {})
     options[:policy] || Critic::Policy.for(object)
   end
 
@@ -63,13 +59,11 @@ module Critic::Controller
     (defined?(consumer) && consumer) || current_user
   end
 
-  def parse_caller(at)
-    match_data = at.match(/^(.+?):(\d+)(?::in `(.*)')?/)
+  private
 
-    if match_data
-      _, file, line, method = match_data.to_a
+  def set_default_action(options)
+    rails_action = defined?(params) && params.fetch(:action)
 
-      [file, line.to_i, method]
-    end
+    options[:action] = rails_action if rails_action
   end
 end

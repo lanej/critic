@@ -1,7 +1,8 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 RSpec.describe 'controller' do
-  before { Table.all.clear }
+  before do Table.all.clear end
 
   Table = Struct.new(:id)
 
@@ -9,7 +10,7 @@ RSpec.describe 'controller' do
     @all ||= []
   end
 
-  User  = Struct.new(:name)
+  User = Struct.new(:name)
 
   class TablePolicy
     include Critic::Policy
@@ -31,7 +32,7 @@ RSpec.describe 'controller' do
     end
 
     def show
-      authorize table
+      authorize table, :show
 
       table
     end
@@ -51,13 +52,13 @@ RSpec.describe 'controller' do
     end
   end
 
-  it "authorizes the single resource" do
-    expect(Controller.new(User.new("steve")).show).to eq(Table.new(1))
+  it 'authorizes the single resource' do
+    expect(Controller.new(User.new('steve')).show).to eq(Table.new(1))
   end
 
-  it "authorizes resource scope" do
-    [Table.new("1"), Table.new("reject"), Table.new("A")].each { |t| Table.all << t }
+  it 'authorizes resource scope' do
+    [Table.new('1'), Table.new('reject'), Table.new('A')].each do |t| Table.all << t end
 
-    expect(Controller.new(User.new("steve")).index).to contain_exactly(Table.new("1"), Table.new("A"))
+    expect(Controller.new(User.new('steve')).index).to contain_exactly(Table.new('1'), Table.new('A'))
   end
 end

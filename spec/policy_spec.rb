@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 RSpec.describe 'policies' do
@@ -9,9 +10,7 @@ RSpec.describe 'policies' do
     end
 
     def show
-      unless subject.grants.include?(resource)
-        "No peeking"
-      end
+      'No peeking' unless subject.grants.include?(resource)
     end
   end
 
@@ -21,13 +20,13 @@ RSpec.describe 'policies' do
     end
   end
 
-  it "grants access to an authorized user" do
+  it 'grants access to an authorized user' do
     consumer = Subject.new([:blah])
 
     expect(ChairPolicy.authorize(:update, consumer, :blah)).to be_granted
   end
 
-  it "denies access to an unauthorized user" do
+  it 'denies access to an unauthorized user' do
     consumer = Subject.new([])
     authorization = ChairPolicy.authorize(:show, consumer, :blah)
 

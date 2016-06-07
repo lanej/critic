@@ -1,6 +1,7 @@
-require "critic/version"
-require "active_support/concern"
-require "active_support/core_ext/string/inflections"
+# frozen_string_literal: true
+require 'critic/version'
+require 'active_support/concern'
+require 'active_support/core_ext/string/inflections'
 
 module Critic; end
 
