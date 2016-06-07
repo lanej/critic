@@ -85,6 +85,19 @@ RSpec.describe 'Critic::Controller' do
     end
   end
 
+  describe '#verify_authorized' do
+    it 'raises if authorization was not performed' do
+      expect {
+        controller.send(:verify_authorized)
+      }.to raise_exception(Critic::AuthorizationMissing)
+    end
+
+    it 'returns true if authorization is performed' do
+      controller.send(:authorizing!)
+      expect(controller.send(:verify_authorized)).to eq(true)
+    end
+  end
+
   describe '#authorized' do
     it 'returns a boolean matching authorization success' do
       user.name = 'steve'
