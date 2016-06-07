@@ -10,8 +10,7 @@ module Critic::Controller
   end
 
   def authorize(resource, *args, **options)
-    set_default_action(options)
-    options[:action] ||= args.shift
+    options[:action] ||= default_action || args.shift
 
     action       = options.fetch(:action)
     policy_class = policy(resource, options)
@@ -61,9 +60,7 @@ module Critic::Controller
 
   private
 
-  def set_default_action(options)
-    rails_action = defined?(params) && params.fetch(:action)
-
-    options[:action] = rails_action if rails_action
+  def default_action
+    defined?(params) && params.fetch(:action)
   end
 end
