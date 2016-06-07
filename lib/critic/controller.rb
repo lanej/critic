@@ -13,7 +13,7 @@ module Critic::Controller
     options[:action] ||= default_action || args.shift
 
     action       = options.fetch(:action)
-    policy_class = policy(resource, options)
+    policy_class = options[:policy] || policy(resource)
 
     authorizing!
 
@@ -24,8 +24,8 @@ module Critic::Controller
     @authorization.result
   end
 
-  def authorize_scope(scope, options = {})
-    options[:action] ||= policy(scope, options).scope
+  def authorize_scope(scope, policy: policy(scope), **options)
+    options[:action] ||= policy.scope
 
     authorize(scope, options)
   end
@@ -50,8 +50,8 @@ module Critic::Controller
     @_authorizing = true
   end
 
-  def policy(object, options = {})
-    options[:policy] || Critic::Policy.for(object)
+  def policy(object)
+    Critic::Policy.for(object)
   end
 
   def critic
