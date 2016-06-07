@@ -9,10 +9,12 @@ module Critic::Controller
     end
   end
 
-  def authorize(resource, action=default_action, policy: policy(resource), with: [])
+  def authorize(resource, action=default_action, policy: policy(resource), with: nil)
     authorizing!
 
-    @authorization = policy.authorize(action, critic, resource, *with)
+    args = [with] if !with.is_a?(Array) && !with.nil?
+
+    @authorization = policy.authorize(action, critic, resource, args)
 
     authorization_failed! if @authorization.denied?
 

@@ -18,8 +18,8 @@ RSpec.describe 'Critic::Controller' do
   class TablePolicy
     include Critic::Policy
 
-    def destroy(accept)
-      accept
+    def destroy(options)
+      options[:accept] == true
     end
 
     def show
@@ -107,11 +107,11 @@ RSpec.describe 'Critic::Controller' do
   describe '#authorize' do
     it 'passes #with to the policy as arguments' do
       expect(
-        controller.authorize(Table.new(1), :destroy, with: true)
+        controller.authorize(Table.new(1), :destroy, with: {accept: true})
       ).to eq(true)
 
       expect {
-        controller.authorize(Table.new(1), :destroy, with: false)
+        controller.authorize(Table.new(1), :destroy, with: {foo: false})
       }.to raise_exception(Critic::AuthorizationDenied)
     end
 

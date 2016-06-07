@@ -36,7 +36,7 @@ module Critic::Policy
 
   # Policy entry points
   module ClassMethods
-    def authorize(action, subject, resource, *args)
+    def authorize(action, subject, resource, args=nil)
       new(subject, resource).authorize(action, *args)
     end
 
