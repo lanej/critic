@@ -35,7 +35,7 @@ module Critic::Controller
   attr_reader :authorization
 
   def authorization_failed!
-    raise Critic::AuthorizationFailed, authorization.messages
+    raise Critic::AuthorizationDenied, authorization.messages
   end
 
   def authorization_missing!
