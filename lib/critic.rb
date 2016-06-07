@@ -3,6 +3,7 @@ require 'critic/version'
 require 'active_support/concern'
 require 'active_support/core_ext/string/inflections'
 
+# Namespace
 module Critic; end
 
 Critic::AuthorizationDenied  = Class.new(StandardError)

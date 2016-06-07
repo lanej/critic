@@ -40,7 +40,7 @@ module Critic::Controller
   end
 
   def authorization_missing!
-    raise Critic::AuthorizationMissing.new
+    raise Critic::AuthorizationMissing
   end
 
   def verify_authorized

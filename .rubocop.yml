@@ -1,6 +1,8 @@
 AllCops:
   TargetRubyVersion: 2.3
   DisplayCopNames: true
+  Exclude:
+    - 'spec/**/*'
 Metrics/LineLength:
   Max: 120
 Style/BlockDelimiters:
@@ -26,3 +28,7 @@ Metrics/PerceivedComplexity:
 Style/TrailingCommaInArguments:
   Enabled: false
   #EnforcedStyleForMultiline: consistent_comma # this is very broke
+Style/StructInheritance:
+  Enabled: false
+Style/AccessorMethodName:
+  Enabled: false

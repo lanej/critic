@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-RSpec.describe 'controller' do
-  before do Table.all.clear end
+RSpec.describe 'Critic::Controller' do
+  before { Table.all.clear }
+
+  let!(:user)       { User.new('steve') }
+  let!(:controller) { Controller.new(user) }
 
   Table = Struct.new(:id)
 
@@ -53,12 +56,12 @@ RSpec.describe 'controller' do
   end
 
   it 'authorizes the single resource' do
-    expect(Controller.new(User.new('steve')).show).to eq(Table.new(1))
+    expect(controller.show).to eq(Table.new(1))
   end
 
   it 'authorizes resource scope' do
-    [Table.new('1'), Table.new('reject'), Table.new('A')].each do |t| Table.all << t end
+    [Table.new('1'), Table.new('reject'), Table.new('A')].each { |t| Table.all << t }
 
-    expect(Controller.new(User.new('steve')).index).to contain_exactly(Table.new('1'), Table.new('A'))
+    expect(controller.index).to contain_exactly(Table.new('1'), Table.new('A'))
   end
 end

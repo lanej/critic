@@ -15,6 +15,7 @@ module Critic::Policy
   included do
   end
 
+  # Policy entry points
   module ClassMethods
     def authorize(action, subject, resource, *args)
       new(subject, resource).authorize(action, *args)
@@ -52,12 +53,12 @@ module Critic::Policy
   def authorize(action, *args)
     self.authorization = Critic::Authorization.new(self, action)
 
-    granted, result = nil
+    result = nil
 
     begin
       result = public_send(action, *args)
     rescue Critic::AuthorizationDenied
-      granted = false
+      authorization.granted = false
     ensure
       authorization.result = result
     end
@@ -65,12 +66,12 @@ module Critic::Policy
     case result
     when Critic::Authorization
       # user has accessed authorization directly
-    when TrueClass
+    when true
       authorization.granted = true
     when String
       authorization.granted = false
       authorization.messages << result
-    when FalseClass
+    when false
       authorization.granted = false
       authorization.messages << failure_message(action)
     end

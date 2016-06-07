@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-RSpec.describe 'policies' do
+RSpec.describe Critic::Policy do
   class ChairPolicy
     include Critic::Policy
 
