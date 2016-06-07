@@ -27,7 +27,7 @@ module Critic::Policy
   included do
     include ActiveSupport::Callbacks
 
-    if ActiveSupport::VERSION::MAJOR = 3
+    if ActiveSupport::VERSION::MAJOR < 4
       define_callbacks :authorize, terminator: 'authorization.result == false || result == false'
     else
       define_callbacks :authorize, terminator: ->(target, result) { target.authorization.result == false || false == result }
