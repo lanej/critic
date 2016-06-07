@@ -61,6 +61,6 @@ module Critic::Controller
   private
 
   def default_action
-    defined?(params) && params.fetch(:action)
+    defined?(params) && params[:action]
   end
 end

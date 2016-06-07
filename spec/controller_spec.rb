@@ -5,7 +5,7 @@ RSpec.describe 'Critic::Controller' do
   before { Table.all.clear }
 
   let!(:user)       { User.new('steve') }
-  let!(:controller) { Controller.new(user) }
+  let!(:controller) { TableController.new(user) }
 
   Table = Struct.new(:id)
 
@@ -22,12 +22,16 @@ RSpec.describe 'Critic::Controller' do
       !subject.name.empty?
     end
 
+    def update
+      true
+    end
+
     def index
       Table.all.select { |t| !t.id.to_s.match(/reject/) }
     end
   end
 
-  class Controller
+  class TableController
     include Critic::Controller
 
     def initialize(user)
@@ -40,6 +44,16 @@ RSpec.describe 'Critic::Controller' do
       table
     end
 
+    def update
+      # looks like a rails controller action
+      params[:action] = :update
+
+      table.id = 2
+      authorize table
+
+      table
+    end
+
     def index
       authorize_scope Table
     end
@@ -47,7 +61,11 @@ RSpec.describe 'Critic::Controller' do
     protected
 
     def table
-      Table.new(1)
+      @table ||= Table.new(1)
+    end
+
+    def params
+      @params ||= {}
     end
 
     def critic
@@ -55,7 +73,13 @@ RSpec.describe 'Critic::Controller' do
     end
   end
 
-  it 'authorizes the single resource' do
+  describe 'Rails' do
+    it 'authorizes a single resource using contextual parameters' do
+      expect(controller.update).to eq(Table.new(2))
+    end
+  end
+
+  it 'authorizes a single resource' do
     expect(controller.show).to eq(Table.new(1))
   end
 
