@@ -34,12 +34,16 @@ RSpec.describe 'Critic::Controller' do
   class TableController
     include Critic::Controller
 
+    include ActiveSupport::Callbacks
+
     def initialize(user)
       @user = user
     end
 
     def show
       authorize table, :show
+
+      verify_authorized
 
       table
     end
@@ -50,6 +54,8 @@ RSpec.describe 'Critic::Controller' do
 
       table.id = 2
       authorize table
+
+      verify_authorized
 
       table
     end

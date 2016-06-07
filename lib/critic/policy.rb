@@ -13,6 +13,9 @@ module Critic::Policy
   end
 
   included do
+    include ActiveSupport::Callbacks
+
+    define_callbacks :authorize
   end
 
   # Policy entry points
@@ -56,7 +59,7 @@ module Critic::Policy
     result = nil
 
     begin
-      result = public_send(action, *args)
+      run_callbacks(:authorize) { result = public_send(action, *args) }
     rescue Critic::AuthorizationDenied
       authorization.granted = false
     ensure
