@@ -83,17 +83,17 @@ module Critic::Policy
       authorization.result = result if authorization.result.nil?
     end
 
-    case result
+    case authorization.result
     when Critic::Authorization
       # user has accessed authorization directly
-    when true
-      authorization.granted = true
     when String
       authorization.granted = false
       authorization.messages << result
     when false
       authorization.granted = false
       authorization.messages << failure_message(action)
+    else
+      authorization.granted = true
     end
 
     authorization
