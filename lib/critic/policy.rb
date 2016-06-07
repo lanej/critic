@@ -28,9 +28,9 @@ module Critic::Policy
     include ActiveSupport::Callbacks
 
     if ActiveSupport::VERSION::MAJOR = 3
-      define_callbacks :authorize, terminator: 'result == false || result.nil?'
+      define_callbacks :authorize, terminator: 'authorization.result == false || result == false'
     else
-      define_callbacks :authorize, terminator: ->(target, result) { false == result || result.nil? }
+      define_callbacks :authorize, terminator: ->(target, result) { target.authorization.result == false || false == result }
     end
   end
 
@@ -42,6 +42,18 @@ module Critic::Policy
 
     def scope(action = nil)
       action.nil? ? (@scope || :index) : (@scope = action)
+    end
+
+    def before_authorize(*args, **options, &block)
+      set_callback(:authorize, :before, *args, **options, &block)
+    end
+
+    def after_authorize(*args, **options, &block)
+      set_callback(:authorize, :after, *args, **options, &block)
+    end
+
+    def around_authorize(*args, **options, &block)
+      set_callback(:authorize, :around, *args, **options, &block)
     end
   end
 
