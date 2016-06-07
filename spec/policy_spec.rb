@@ -32,4 +32,31 @@ RSpec.describe Critic::Policy do
 
     expect(authorization).to be_denied
   end
+
+  describe '#for' do
+    Chair = Class.new
+    Unknown = Class.new
+    Relation = Struct.new(:model_name)
+
+    it 'uses the #model_name if applicable' do
+
+      expect(Critic::Policy.for(Relation.new('Chair'))).to eq(ChairPolicy)
+
+      expect {
+        Critic::Policy.for(Relation.new('Unknown'))
+      }.to raise_exception(NameError, /UnknownPolicy/)
+    end
+
+    it "uses the class' name if provided" do
+      expect(Critic::Policy.for(Chair)).to eq(ChairPolicy)
+
+      expect { Critic::Policy.for(Unknown) }.to raise_exception(NameError, /UnknownPolicy/)
+    end
+
+    it "uses the object's class" do
+
+      expect(Critic::Policy.for(Chair.new)).to eq(ChairPolicy)
+      expect { Critic::Policy.for(Unknown.new) }.to raise_exception(NameError, /UnknownPolicy/)
+    end
+  end
 end

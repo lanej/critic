@@ -6,8 +6,20 @@ module Critic::Policy
     @_policies ||= Hash.new { |h, k| h[k.to_s] = nil }
   end
 
+  # @fixme do we really wish to demodulize ?
+  def self.resource_class_for(object)
+    if object.respond_to?(:model_name)
+      # used for pulling class out of ActiveRecord::Relation objects
+      object.model_name
+    elsif object.is_a?(Class)
+      object.to_s.demodulize
+    else
+      object.class.to_s.demodulize
+    end
+  end
+
   def self.for(resource)
-    resource_class = resource.is_a?(Class) ? resource : resource.class
+    resource_class = resource_class_for(resource)
 
     policies.fetch(resource_class) { "#{resource_class}Policy".constantize }
   end
