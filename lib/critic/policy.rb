@@ -36,7 +36,7 @@ module Critic::Policy
 
   # Policy entry points
   module ClassMethods
-    def authorize(action, subject, resource, args=nil)
+    def authorize(action, subject, resource, args = nil)
       new(subject, resource).authorize(action, *args)
     end
 
@@ -80,7 +80,7 @@ module Critic::Policy
     result = false
 
     begin
-      run_callbacks(:authorize) { result = public_send(action, *args) }
+      run_callbacks(:authorize) do result = public_send(action, *args) end
     rescue Critic::AuthorizationDenied
       authorization.granted = false
     ensure
