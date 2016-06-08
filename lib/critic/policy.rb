@@ -55,6 +55,10 @@ module Critic::Policy
     def around_authorize(*args, **options, &block)
       set_callback(:authorize, :around, *args, **options, &block)
     end
+
+    def skip_before_authorize(action, **options)
+      skip_callback(:authorize, :before, action, **options)
+    end
   end
 
   attr_reader :subject, :resource, :errors
