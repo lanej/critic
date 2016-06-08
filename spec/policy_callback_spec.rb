@@ -15,6 +15,7 @@ RSpec.describe 'Critic::Policy', 'callbacks' do
 
   it 'raises AuthorizationDenied if before_authorize hook returns false' do
     policy.before_authorize { |policy| nil }
+    policy.before_authorize { |policy| "woo" }
     policy.before_authorize { |policy| policy.resource.id != 5 }
 
     expect(policy.authorize(:show, nil, resource.new(1)).result).to eq(true)
