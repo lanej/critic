@@ -5,7 +5,7 @@ class Critic::Authorization
 
   def initialize(policy, action)
     @policy = policy
-    @action = action
+    @action = action&.to_sym
 
     @granted, @result = nil
     @messages = []

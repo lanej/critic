@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-RSpec.describe 'Critic::Policy', 'callbacks' do
+RSpec.describe 'Critic::Callbacks' do
   let!(:policy) do
     Class.new do
       include Critic::Policy
