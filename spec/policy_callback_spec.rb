@@ -13,8 +13,8 @@ RSpec.describe 'Critic::Policy', 'callbacks' do
   end
   let!(:resource) { Struct.new(:id)  }
 
-  def authorize(id)
-    policy.authorize(:show, nil, resource.new(id)).result
+  def authorize(id, action: :show)
+    policy.authorize(action, nil, resource.new(id)).result
   end
 
   it 'raises AuthorizationDenied if before_authorize hook returns false' do
@@ -31,5 +31,29 @@ RSpec.describe 'Critic::Policy', 'callbacks' do
 
     expect(authorize(5)).to eq(true)
     expect(authorize(nil)).to eq(true)
+  end
+
+  describe '#skip_before_authorize' do
+    it 'accepts :only certain actions' do
+      policy.class_eval do
+        def condition
+          false
+        end
+
+        def update
+          true
+        end
+      end
+
+      policy.before_authorize :condition
+
+      expect(authorize(nil, action: :show)).to eq(false)
+      expect(authorize(nil, action: :update)).to eq(false)
+
+      policy.skip_before_authorize :condition, only: :update
+
+      expect(authorize(nil, action: :show)).to eq(false)
+      expect(authorize(nil, action: :update)).to eq(true)
+    end
   end
 end
