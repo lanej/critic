@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Adds callbacks to {Critic::Policy#authorize}
 module Critic::Callbacks
   extend ActiveSupport::Concern
 
@@ -16,6 +17,7 @@ module Critic::Callbacks
     end
   end
 
+  # Adds callback management functions to {Critic::Policy}
   module ClassMethods
     def before_authorize(*names, &blk)
       _insert_callbacks(names, blk) do |name, options|
@@ -55,7 +57,8 @@ module Critic::Callbacks
     end
 
     def _normalize_callback_option(options, from, to) # :nodoc:
-      if from = options[from]
+      from = options[from]
+      if from
         from = Array(from).map { |o| "authorization.action.to_s == '#{o}'" }
         options[to] = Array(options[to]).unshift(from).join(' || ')
       end
