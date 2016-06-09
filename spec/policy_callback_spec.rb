@@ -46,14 +46,28 @@ RSpec.describe 'Critic::Policy', 'callbacks' do
       end
 
       policy.before_authorize :condition
-
-      expect(authorize(nil, action: :show)).to eq(false)
-      expect(authorize(nil, action: :update)).to eq(false)
-
       policy.skip_before_authorize :condition, only: :update
 
       expect(authorize(nil, action: :show)).to eq(false)
       expect(authorize(nil, action: :update)).to eq(true)
+    end
+
+    it 'accepts :except certain actions' do
+      policy.class_eval do
+        def condition
+          false
+        end
+
+        def update
+          true
+        end
+      end
+
+      policy.before_authorize :condition
+      policy.skip_before_authorize :condition, except: :update
+
+      expect(authorize(nil, action: :show)).to eq(true)
+      expect(authorize(nil, action: :update)).to eq(false)
     end
   end
 end
