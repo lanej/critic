@@ -14,3 +14,4 @@ Critic::AuthorizationMissing = Class.new(StandardError)
 require 'critic/policy'
 require 'critic/authorization'
 require 'critic/controller'
+require 'critic/callbacks'

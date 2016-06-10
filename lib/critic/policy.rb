@@ -25,35 +25,17 @@ module Critic::Policy
   end
 
   included do
-    include ActiveSupport::Callbacks
-
-    if ActiveSupport::VERSION::MAJOR < 4
-      define_callbacks :authorize, terminator: 'authorization.result == false || result == false'
-    else
-      define_callbacks :authorize, terminator: ->(target, result) { target.authorization.result == false || false == result }
-    end
+    include Critic::Callbacks
   end
 
   # Policy entry points
   module ClassMethods
-    def authorize(action, subject, resource, args=nil)
+    def authorize(action, subject, resource, args = nil)
       new(subject, resource).authorize(action, *args)
     end
 
     def scope(action = nil)
       action.nil? ? (@scope || :index) : (@scope = action)
-    end
-
-    def before_authorize(*args, **options, &block)
-      set_callback(:authorize, :before, *args, **options, &block)
-    end
-
-    def after_authorize(*args, **options, &block)
-      set_callback(:authorize, :after, *args, **options, &block)
-    end
-
-    def around_authorize(*args, **options, &block)
-      set_callback(:authorize, :around, *args, **options, &block)
     end
   end
 
@@ -76,7 +58,7 @@ module Critic::Policy
     result = false
 
     begin
-      run_callbacks(:authorize) { result = public_send(action, *args) }
+      result = process_authorization(action, args)
     rescue Critic::AuthorizationDenied
       authorization.granted = false
     ensure
@@ -97,5 +79,11 @@ module Critic::Policy
     end
 
     authorization
+  end
+
+  private
+
+  def process_authorization(action, args)
+    public_send(action, *args)
   end
 end

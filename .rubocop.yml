@@ -32,3 +32,5 @@ Style/StructInheritance:
   Enabled: false
 Style/AccessorMethodName:
   Enabled: false
+Lint/CircularArgumentReference: 
+  Enabled: false # this does not work very well

@@ -114,28 +114,6 @@ RSpec.describe 'Critic::Controller' do
         controller.authorize(Table.new(1), :destroy, with: {foo: false})
       }.to raise_exception(Critic::AuthorizationDenied)
     end
-
-    describe 'callbacks' do
-      it 'raises AuthorizationDenied if before_authorize hook returns false' do
-        mutated_policy = TablePolicy.dup
-        mutated_policy.before_authorize { |policy| nil }
-        mutated_policy.before_authorize { |policy| policy.resource.id != 5 }
-
-        expect {
-          controller.authorize(Table.new(5), :show, policy: mutated_policy)
-        }.to raise_exception(Critic::AuthorizationDenied)
-
-        expect(controller.authorize(Table.new(1), :show)).to eq(true)
-      end
-
-      it 'does not raise AuthorizationDenied on after_authorize hooks' do
-        mutated_policy = TablePolicy.dup
-        mutated_policy.after_authorize { |policy| policy.resource.id.nil? }
-
-        expect(controller.authorize(Table.new(5), :show, policy: mutated_policy)).to eq(true)
-        expect(controller.authorize(Table.new(1), :show, policy: mutated_policy)).to eq(true)
-      end
-    end
   end
 
   describe '#authorize_scope' do

@@ -9,7 +9,7 @@ module Critic::Controller
     end
   end
 
-  def authorize(resource, action=default_action, policy: policy(resource), with: nil)
+  def authorize(resource, action = default_action, policy: policy(resource), with: nil)
     authorizing!
 
     args = [with] if !with.is_a?(Array) && !with.nil?
@@ -46,10 +46,10 @@ module Critic::Controller
   end
 
   def verify_authorized
-    unless true == @_authorizing
-      authorization_missing!
-    else
+    if true == @_authorizing
       true
+    else
+      authorization_missing!
     end
   end
 
