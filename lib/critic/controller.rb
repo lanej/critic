@@ -46,11 +46,7 @@ module Critic::Controller
   end
 
   def verify_authorized
-    if true == @_authorizing
-      true
-    else
-      authorization_missing!
-    end
+    (true == @_authorizing) || authorization_missing!
   end
 
   def authorizing!
