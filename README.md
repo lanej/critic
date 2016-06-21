@@ -1,8 +1,6 @@
 # Critic
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/critic`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Critic inserts an easily verifiable authorization layer into your MVC application using resource policies.
 
 ## Installation
 
@@ -22,7 +20,133 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Policies
+
+A policy contains authorization logic for a resource and an authenticated subject.
+
+```ruby
+# app/policies/post_policy.rb
+class PostPolicy
+  include Critic::Policy
+end
+```
+
+There are two types of methods:
+
+* *action* - determines if subject is authorized to perform a specific operation on the resource
+* *scope* - returns a list of resources available to the subject
+
+
+#### Actions
+
+The most basic actions return `true` or `false` to indicate the authorization status.
+
+```ruby
+# app/policies/post_policy.rb
+class PostPolicy
+  include Critic::Policy
+
+  def update
+    !resource.locked
+  end
+end
+```
+
+This policy will only allow updates if the post is not `locked`.
+
+Verify authorization using `#authorize`.
+
+```ruby
+Post = Struct.new(:locked)
+User = Struct.new
+
+PostPolicy.authorize(:update, User.new, Post.new(false)).granted? #=> true
+PostPolicy.authorize(:update, User.new, Post.new(true)).granted? #=> false
+```
+
+#### Scopes
+
+Scopes treat `resource` as a starting point and return a restricted set of associated resources.  Policies can have any number of scopes.  The default scope is `#index`.
+
+```
+# app/policies/post_policy.rb
+class PostPolicy
+  include Critic::Policy
+
+  def index
+    resource.where(deleted_at: nil, author_id: subject.id)
+  end
+end
+```
+
+### Controller
+
+Controllers are the primary consumer of policies.  Controllers ask the policy if an authenticated subject is authorized to perform a specific action on a specific resource.
+
+In Rails, the policy action is inferred from `params[:action]` which corresponds to the controller action method name.
+
+When `authorize` fails, a `Critic::AuthorizationDenied` exception is raised with reference to the performed authorization.
+
+```ruby
+# app/controllers/post_controller.rb
+class PostController < ApplicationController
+  include Critic::Controller
+
+  rescue_from Critic::AuthorizationDenied do |exception|
+    messages = exception.authorization.messages || exception.message
+    render json: {errors: [messages]}, status: :unauthorized
+  end
+
+  def update
+    post = Post.find(params[:id])
+    authorize post # calls PostPolicy#update
+
+    render json: post
+  end
+end
+```
+
+When action cannot be inferred, pass the intended action to `authorize`.
+
+```ruby
+# app/controllers/post_controller.rb
+class PostController < Sinatra::Base
+  include Critic::Controller
+
+  error Critic::AuthorizationDenied do |exception|
+    messages = exception.authorization.messages || exception.message
+
+    body {errors: [messages]}
+    halt 403
+  end
+
+  put '/posts/:id' do |id|
+    post = Post.find(id)
+    authorize post, :update
+
+    post.to_json
+  end
+end
+```
+
+By default, the policy's subject is referenced by `current_user`.  Override `critic` to customize.
+
+```
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  include Critic::Controller
+
+  protected
+
+  def critic
+    token
+  end
+end
+```
+
+
+#### Testing
+
 
 ## Development
 
