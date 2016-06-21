@@ -10,6 +10,6 @@ task default: :spec
 desc 'Run rubocop'
 task :rubocop do
   task = RuboCop::RakeTask.new
-  task.patterns = ["lib/**/*.rb"]
+  task.patterns = ['lib/**/*.rb']
   task
 end

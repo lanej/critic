@@ -8,10 +8,12 @@ require 'active_support/core_ext/string/inflections'
 # Namespace
 module Critic; end
 
-Critic::AuthorizationDenied  = Class.new(StandardError)
-Critic::AuthorizationMissing = Class.new(StandardError)
+Critic::Error = Class.new(StandardError)
+
+Critic::AuthorizationMissing = Class.new(Critic::Error)
 
 require 'critic/policy'
 require 'critic/authorization'
+require 'critic/authorization_denied'
 require 'critic/controller'
 require 'critic/callbacks'

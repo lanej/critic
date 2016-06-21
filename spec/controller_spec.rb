@@ -99,7 +99,7 @@ RSpec.describe 'Critic::Controller' do
       expect(controller.authorized?(Table.new(1), :show)).to eq(false)
 
       user.name = 'steve'
-      allow(user).to receive(:name).and_raise(Critic::AuthorizationDenied)
+      allow(user).to receive(:name).and_raise(Critic::AuthorizationDenied.new(controller.send(:authorization)))
       expect(controller.authorized?(Table.new(1), :show)).to eq(false)
     end
   end
