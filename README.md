@@ -131,7 +131,7 @@ end
 
 By default, the policy's subject is referenced by `current_user`.  Override `critic` to customize.
 
-```
+```ruby
 # app/controllers/application_controller.rb
 class ApplicationController < ActionController::Base
   include Critic::Controller
