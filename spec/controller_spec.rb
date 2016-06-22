@@ -38,8 +38,6 @@ RSpec.describe 'Critic::Controller' do
   class TableController
     include Critic::Controller
 
-    include ActiveSupport::Callbacks
-
     def initialize(user)
       @user = user
     end
