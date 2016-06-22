@@ -42,6 +42,8 @@ module Critic::Policy
   attr_reader :subject, :resource, :errors
   attr_accessor :authorization
 
+  delegate :messages, :metadata, to: :authorization
+
   def initialize(subject, resource)
     @subject = subject
     @resource = resource

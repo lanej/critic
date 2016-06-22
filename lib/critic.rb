@@ -4,6 +4,7 @@ require 'active_support/concern'
 require 'active_support/callbacks'
 require 'active_support/version'
 require 'active_support/core_ext/string/inflections'
+require 'active_support/core_ext/module/delegation'
 
 # Namespace
 module Critic; end
