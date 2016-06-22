@@ -30,8 +30,8 @@ RSpec.describe 'Critic::Controller' do
       true
     end
 
-    def index
-      Table.all.select { |t| !t.id.to_s.match(/reject/) }
+    def index(match: /reject/)
+      Table.all.select { |t| !t.id.to_s.match(match) }
     end
   end
 
@@ -121,6 +121,12 @@ RSpec.describe 'Critic::Controller' do
       [Table.new('1'), Table.new('reject'), Table.new('A')].each { |t| Table.all << t }
 
       expect(controller.authorize_scope(Table)).to contain_exactly(Table.new('1'), Table.new('A'))
+    end
+
+    it 'accepts with: arguments' do
+      [Table.new('1'), Table.new('reject'), Table.new('A')].each { |t| Table.all << t }
+
+      expect(controller.authorize_scope(Table, with: {match: 'A'})).to contain_exactly(Table.new('1'), Table.new('reject'))
     end
   end
 end

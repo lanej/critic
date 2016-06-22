@@ -27,10 +27,10 @@ module Critic::Controller
     false
   end
 
-  def authorize_scope(scope, *args, action: nil, policy: policy(scope))
+  def authorize_scope(scope, *args, action: nil, policy: policy(scope), **options)
     authorization_action = action || policy.scope
 
-    authorize(scope, authorization_action, *args, policy: policy)
+    authorize(scope, authorization_action, *args, policy: policy, **options)
   end
 
   protected
