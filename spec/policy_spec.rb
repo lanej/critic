@@ -49,6 +49,22 @@ RSpec.describe Critic::Policy do
       expect(authorization.granted).to eq(false)
     end
 
+    it 'halts and returns the result' do
+      policy_class.class_eval do
+        def action
+          metadata[:code] = 404
+          halt 'not found'
+          true
+        end
+      end
+
+      authorization = policy_class.new(nil, nil).authorize(:action)
+
+      expect(authorization.result).to eq('not found')
+      expect(authorization.granted).to eq(false)
+      expect(authorization.metadata).to eq(code: 404)
+    end
+
     it 'considers a false return value as denied' do
       policy_class.class_eval do
         def action

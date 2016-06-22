@@ -57,15 +57,9 @@ module Critic::Policy
   def authorize(action, *args)
     self.authorization = Critic::Authorization.new(self, action)
 
-    result = false
+    result = catch(:halt) { process_authorization(action, args) }
 
-    begin
-      result = process_authorization(action, args)
-    rescue Critic::AuthorizationDenied
-      authorization.granted = false
-    ensure
-      authorization.result = result if authorization.result.nil?
-    end
+    authorization.result = result if authorization.result.nil?
 
     case authorization.result
     when Critic::Authorization
@@ -81,6 +75,12 @@ module Critic::Policy
     end
 
     authorization
+  end
+
+  protected
+
+  def halt(*response)
+    throw :halt, *response
   end
 
   private
