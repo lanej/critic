@@ -39,19 +39,10 @@ module Critic::Policy
     end
   end
 
-  attr_reader :subject, :resource, :errors
-  attr_accessor :authorization
-
-  delegate :messages, :metadata, to: :authorization
-
   def initialize(subject, resource)
     @subject = subject
     @resource = resource
     @errors = []
-  end
-
-  def failure_message(action)
-    "#{subject} is not authorized to #{action} #{resource}"
   end
 
   def authorize(action, *args)
@@ -78,6 +69,15 @@ module Critic::Policy
   end
 
   protected
+
+  attr_reader :subject, :resource, :errors
+  attr_accessor :authorization
+
+  delegate :messages, :metadata, to: :authorization
+
+  def failure_message(action)
+    "#{subject} is not authorized to #{action} #{resource}"
+  end
 
   def halt(*response)
     throw :halt, *response
