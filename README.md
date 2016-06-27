@@ -127,7 +127,11 @@ class PostController < Sinatra::Base
     post.to_json
   end
 end
+
+
 ```
+
+#### Custom subject
 
 By default, the policy's subject is referenced by `current_user`.  Override `critic` to customize.
 
@@ -140,6 +144,39 @@ class ApplicationController < ActionController::Base
 
   def critic
     token
+  end
+end
+```
+
+#### Custom policy
+
+The default policy for a resource is referenced by the resoure class name.  For instance, Critic will look for a `PostPolicy` for a `Post.new` object.  You can set a custom policy for the entire controller by overriding the `policy` method.
+
+```ruby
+# app/controllers/application_controller.rb
+class PostController < ActionController::Base
+  include Critic::Controller
+
+  protected
+
+  def policy(_resource)
+    V2::PostPolicy
+  end
+end
+```
+
+You can also provide a specific policy when calling `authorize`
+
+```ruby
+# app/controllers/application_controller.rb
+class PostController < ActionController::Base
+  include Critic::Controller
+
+  def show
+    post = Post.find(params[:id])
+    authorize post, policy: V2::PostPolicy
+
+    render json: post
   end
 end
 ```
