@@ -46,7 +46,7 @@ The most basic actions return `true` or `false` to indicate the authorization st
 class PostPolicy
   include Critic::Policy
 
-  def update
+  def update?
     !resource.locked
   end
 end
@@ -60,8 +60,8 @@ Verify authorization using `#authorize`.
 Post = Struct.new(:locked)
 User = Struct.new
 
-PostPolicy.authorize(:update, User.new, Post.new(false)).granted? #=> true
-PostPolicy.authorize(:update, User.new, Post.new(true)).granted? #=> false
+PostPolicy.authorize(:update?, User.new, Post.new(false)).granted? #=> true
+PostPolicy.authorize(:update?, User.new, Post.new(true)).granted? #=> false
 ```
 
 #### Scopes
@@ -75,6 +75,40 @@ class PostPolicy
 
   def index
     resource.where(deleted_at: nil, author_id: subject.id)
+  end
+end
+```
+
+#### Convention
+
+It can be a useful convention to add a `?` suffix to your action methods.  This allows a clear separation between actions and scopes.  All other methods should be `protected`, similar to Rails controller.
+
+```ruby
+# app/policies/post_policy.rb
+class PostPolicy
+  include Critic::Policy
+
+  # default scope
+  def index
+    Post.where(published: true)
+  end
+
+  # custom scope
+  def author_index
+    Post.where(author_id: subject.id)
+  end
+
+  # action
+  def show?
+    (post.draft? && authored_post?) || post.published?
+  end
+
+  protected
+
+  alias post resource
+
+  def authored_post?
+    subject == post.author
   end
 end
 ```
