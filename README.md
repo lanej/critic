@@ -68,7 +68,7 @@ PostPolicy.authorize(:update?, User.new, Post.new(true)).granted? #=> false
 
 Scopes treat `resource` as a starting point and return a restricted set of associated resources.  Policies can have any number of scopes.  The default scope is `#index`.
 
-```
+```ruby
 # app/policies/post_policy.rb
 class PostPolicy
   include Critic::Policy
