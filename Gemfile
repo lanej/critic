@@ -5,6 +5,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'activesupport', '~> 3.2.22', require: false
+gem 'appraisal', '~> 2.1'
 gem 'rubocop', '~> 0.40', require: false
 
 group :test do
