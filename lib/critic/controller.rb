@@ -33,9 +33,9 @@ module Critic::Controller
     authorize(scope, authorization_action, *args, policy: policy, **options)
   end
 
-  protected
-
   attr_reader :authorization
+
+  protected
 
   def authorization_failed!
     raise Critic::AuthorizationDenied, authorization

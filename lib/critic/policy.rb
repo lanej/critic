@@ -68,10 +68,11 @@ module Critic::Policy
     authorization
   end
 
+  attr_accessor :authorization
+
   protected
 
   attr_reader :subject, :resource, :errors
-  attr_accessor :authorization
 
   delegate :messages, :metadata, to: :authorization
 
