@@ -187,7 +187,7 @@ end
 The default policy for a resource is referenced by the resoure class name.  For instance, Critic will look for a `PostPolicy` for a `Post.new` object.  You can set a custom policy for the entire controller by overriding the `policy` method.
 
 ```ruby
-# app/controllers/application_controller.rb
+# app/controllers/post_controller.rb
 class PostController < ActionController::Base
   include Critic::Controller
 
@@ -202,7 +202,7 @@ end
 You can also provide a specific policy when calling `authorize`
 
 ```ruby
-# app/controllers/application_controller.rb
+# app/controllers/post_controller.rb
 class PostController < ActionController::Base
   include Critic::Controller
 
