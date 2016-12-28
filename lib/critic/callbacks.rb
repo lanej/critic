@@ -58,10 +58,10 @@ module Critic::Callbacks
 
     def _normalize_callback_option(options, from, to) # :nodoc:
       from = options[from]
-      if from
-        from = Array(from).map { |o| "authorization.action.to_s == '#{o}'" }
-        options[to] = Array(options[to]).unshift(from).join(' || ')
-      end
+      return unless from
+
+      from = Array(from).map { |o| "authorization.action.to_s == '#{o}'" }
+      options[to] = Array(options[to]).unshift(from).join(' || ')
     end
 
     # Skip before, after, and around action callbacks matching any of the names.

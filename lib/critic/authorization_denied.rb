@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Custom error class for authorization failures
 class Critic::AuthorizationDenied < Critic::Error
   DEFAULT_MESSAGE = 'Authorization denied'
 

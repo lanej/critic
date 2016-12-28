@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Sugar for accessing the authorization interface
 module Critic::Controller
   extend ActiveSupport::Concern
 

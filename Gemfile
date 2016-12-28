@@ -6,7 +6,7 @@ gemspec
 
 gem 'activesupport', '~> 3.2.22', require: false
 gem 'appraisal', '~> 2.1'
-gem 'rubocop', '~> 0.40', require: false
+gem 'rubocop', '~> 0.46.0', require: false
 
 group :test do
   gem 'pry-nav'
