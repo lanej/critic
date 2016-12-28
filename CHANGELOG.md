@@ -1,8 +1,7 @@
 # Change Log
 
-## [Unreleased](https://github.com/lanej/critic/tree/HEAD)
-
-[Full Changelog](https://github.com/lanej/critic/compare/v0.2.0...HEAD)
+## [v0.2.1](https://github.com/lanej/critic/tree/v0.2.1) (2016-12-28)
+[Full Changelog](https://github.com/lanej/critic/compare/v0.2.0...v0.2.1)
 
 **Merged pull requests:**
 
