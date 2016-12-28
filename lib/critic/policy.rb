@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Represents the authorization policy interface
 module Critic::Policy
   extend ActiveSupport::Concern
 
@@ -53,8 +54,8 @@ module Critic::Policy
     authorization.result = result if authorization.result.nil?
 
     case authorization.result
-    when Critic::Authorization
-      # user has accessed authorization directly
+    # when Critic::Authorization
+    #   # user has accessed authorization directly
     when String
       authorization.granted = false
       authorization.messages << result
@@ -68,10 +69,11 @@ module Critic::Policy
     authorization
   end
 
+  attr_accessor :authorization
+
   protected
 
   attr_reader :subject, :resource, :errors
-  attr_accessor :authorization
 
   delegate :messages, :metadata, to: :authorization
 

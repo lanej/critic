@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Represents an authorization result for a policy and action
 class Critic::Authorization
   attr_reader :policy, :action
   attr_accessor :messages, :granted, :result, :metadata

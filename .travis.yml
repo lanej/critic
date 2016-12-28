@@ -4,8 +4,14 @@ cache:
   - bundler
 rvm:
   - 2.3.0
-script: 
+before_script:
+  - bundle install
+script:
   - bundle exec rake rubocop
   - bundle exec rake spec
 notifications:
   email: false
+gemfile:
+  - gemfiles/activesupport_5.gemfile
+  - gemfiles/activesupport_4.gemfile
+  - gemfiles/activesupport_3.gemfile
