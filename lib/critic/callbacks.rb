@@ -10,9 +10,15 @@ module Critic::Callbacks
       define_callbacks :authorize,
                        terminator: 'authorization.result == false || result == false',
                        skip_after_callbacks_if_terminated: true
-    else
+    elsif ActiveSupport::VERSION::MAJOR < 5
       define_callbacks :authorize,
                        terminator: ->(target, result) { target.authorization.result == false || false == result },
+                       skip_after_callbacks_if_terminated: true
+    else
+      define_callbacks :authorize,
+                       terminator: lambda { |target, result_lambda|
+                                     target.authorization.result == false || result_lambda.call == false
+                                   },
                        skip_after_callbacks_if_terminated: true
     end
   end
