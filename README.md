@@ -36,6 +36,27 @@ There are two types of methods:
 * *action* - determines if subject is authorized to perform a specific operation on the resource
 * *scope* - returns a list of resources available to the subject
 
+The default scope is `index` but it can be overridden by specifying `.scope`.
+
+```ruby
+# app/policies/post_policy.rb
+class PostPolicy
+  include Critic::Policy
+
+  # set default scope
+  self.scope = :author_index
+
+  # now default scope
+  def author_index
+    resource.where(author_id: subject.id)
+  end
+
+  # no longer the default scope
+  def index
+    resource.order(:created_at)
+  end
+end
+```
 
 #### Actions
 
@@ -47,7 +68,8 @@ class PostPolicy
   include Critic::Policy
 
   def update?
-    !resource.locked
+    !resource.locked? &&
+      resource.published_at.present?
   end
 end
 ```
@@ -79,6 +101,17 @@ class PostPolicy
 end
 ```
 
+Verify authorization using `#authorize`.
+
+```ruby
+Post = Class.new(ActiveRecord::Base)
+User = Struct.new
+
+authorization = PostPolicy.authorize(index, User.new, Post.new(false))
+authorization.granted? #=> true
+authorization.result #=> <#ActiveRecord::Relation..>
+```
+
 #### Convention
 
 It can be a useful convention to add a `?` suffix to your action methods.  This allows a clear separation between actions and scopes.  All other methods should be `protected`, similar to Rails controller.
@@ -90,12 +123,12 @@ class PostPolicy
 
   # default scope
   def index
-    Post.where(published: true)
+    resource.where(published: true)
   end
 
   # custom scope
   def author_index
-    Post.where(author_id: subject.id)
+    resource.where(author_id: subject.id)
   end
 
   # action
@@ -116,6 +149,8 @@ end
 ### Controller
 
 Controllers are the primary consumer of policies.  Controllers ask the policy if an authenticated subject is authorized to perform a specific action on a specific resource.
+
+#### Actions
 
 In Rails, the policy action is inferred from `params[:action]` which corresponds to the controller action method name.
 
@@ -161,8 +196,40 @@ class PostController < Sinatra::Base
     post.to_json
   end
 end
+```
 
+#### Scopes
 
+Use `authorize_scope` and provide the base scope.  The return value is the result.
+
+```ruby
+# app/controllers/post_controller.rb
+class PostController < Sinatra::Base
+  include Critic::Controller
+
+  get '/customers/:customer_id/posts' do |customer_id|
+    posts =
+      authorize_scope(Post.where(customer_id: customer_id))
+
+    posts.to_json
+  end
+end
+```
+
+Custom indexes can be used by passing an `action` parameter.
+
+```ruby
+# app/controllers/post_controller.rb
+class PostController < Sinatra::Base
+  include Critic::Controller
+
+  get '/posts' d
+    posts =
+      authorize_scope(Post, action: :custom_index)
+
+    posts.to_json
+  end
+end
 ```
 
 #### Custom subject
