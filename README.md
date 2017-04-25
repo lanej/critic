@@ -268,6 +268,69 @@ class PostController < Sinatra::Base
 end
 ```
 
+##### Gentle
+
+Calling `authorized?` returns `true` or `false` instead of raising an exception.
+
+```ruby
+# app/controllers/post_controller.rb
+class PostController < Sinatra::Base
+  include Critic::Controller
+
+  put '/posts/:id' do |id|
+    post = Post.find(id)
+
+    halt(403) unless authorized?(post, :update)
+
+    post.to_json
+  end
+end
+```
+
+##### Verify authorization
+
+`verify_authorized` enforces that the request was authorized before the response is returned.  A `Critic::AuthorizationMissing` error is raised in this case.
+
+```ruby
+# app/controllers/post_controller.rb
+class PostController < Sinatra::Base
+  include Critic::Controller
+
+  verify_authorized
+
+  error Critic::AuthorizationMissing do |exception|
+    # notify developers that something has gone horribly wrong
+    halt 503
+  end
+
+  put '/posts/:id' do |id|
+    post = Post.find(id)
+
+    post.to_json
+  end
+end
+```
+
+This check can be artificially skipped calling `authorizing!`.
+
+```ruby
+# app/controllers/invitation_controller.rb
+class InvitationController < Sinatra::Base
+  include Critic::Controller
+
+  verify_authorized
+
+  post '/invitation/accept/code' do |code|
+    invitation = Invitiation.find_by(code: code)
+
+    invitation.accept!
+    authorizing! # Skip authorization check
+
+    redirect '/'
+  end
+end
+```
+
 #### Scopes
 
 Use `authorize_scope` and provide the base scope.  The return value is the result.
