@@ -289,7 +289,7 @@ end
 
 ##### Verify authorization
 
-`verify_authorized` enforces that the request was authorized before the response is returned.  A `Critic::AuthorizationMissing` error is raised in this case.
+`verify_authorized` enforces that the request was authorized before the response is returned.  A `Critic::AuthorizationMissing` error is raised in this case.  A request is authorized if `authorized?`, `authorize` or `authorizing!` is called before the response is returned.
 
 ```ruby
 # app/controllers/post_controller.rb
