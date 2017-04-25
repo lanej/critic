@@ -86,6 +86,76 @@ PostPolicy.authorize(:update?, User.new, Post.new(false)).granted? #=> true
 PostPolicy.authorize(:update?, User.new, Post.new(true)).granted? #=> false
 ```
 
+#### Authorization Result
+
+Returning a String from your action is interpreted as a failure.  The String is added to the messages of the authorization.
+
+```ruby
+Post = Struct.new(:author_id)
+User = Struct.new(:id)
+
+class PostPolicy
+  include Critic::Policy
+
+  def destroy?
+    return true if resource.author_id == subject.id
+    "Cannot destroy Post: This post is authored by #{resource.author_id}"
+  end
+end
+
+authorization = PostPolicy.authorize(destroy?, User.new(1), Post.new(2))
+authorization.granted? #=> false
+authorization.messages #=> ["Cannot destroy Post: This post is authored by 2"']
+```
+
+`halt` can be used to indicate early failure.  The argument provided to `halt` becomes the result of the authorization.
+
+```ruby
+Post = Struct.new(:author_id)
+User = Struct.new(:id)
+
+class PostPolicy
+  include Critic::Policy
+
+  def destroy?
+    if resource.author_id != subject.id
+      halt "Cannot destroy Post: This post is authored by #{resource.author_id}"
+    end
+    true
+  end
+end
+
+authorization = PostPolicy.authorize(destroy?, User.new(1), Post.new(2))
+authorization.granted? #=> false
+authorization.messages #=> ["Cannot destroy Post: This post is authored by 2"']
+```
+
+`halt(true)` indicates immediate success.
+
+```ruby
+Post = Struct.new(:author_id)
+User = Struct.new(:id)
+
+class PostPolicy
+  include Critic::Policy
+
+  def destroy?
+    check_ownership
+    false
+  end
+
+  private
+
+  def check_ownership
+    halt(true) if resource.author_id == subject.id
+  end
+end
+
+authorization = PostPolicy.authorize(destroy?, User.new(1), Post.new(2))
+authorization.granted? #=> false
+authorization.messages #=> ["Cannot destroy Post: This post is authored by 2"']
+```
+
 #### Scopes
 
 Scopes treat `resource` as a starting point and return a restricted set of associated resources.  Policies can have any number of scopes.  The default scope is `#index`.
@@ -185,7 +255,7 @@ class PostController < Sinatra::Base
   error Critic::AuthorizationDenied do |exception|
     messages = exception.authorization.messages || exception.message
 
-    body {errors: [messages]}
+    body {errors: [*messages]}
     halt 403
   end
 
