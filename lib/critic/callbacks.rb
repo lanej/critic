@@ -66,8 +66,12 @@ module Critic::Callbacks
       from = options[from]
       return unless from
 
-      from = Array(from).map { |o| "authorization.action.to_s == '#{o}'" }
-      options[to] = Array(options[to]).unshift(from).join(' || ')
+      actions = Array(options[to]) + Array(from)
+      options[to] = -> {
+        actions.any? { |action|
+          authorization.action.to_s == action.to_s
+        }
+      }
     end
 
     # Skip before, after, and around action callbacks matching any of the names.
