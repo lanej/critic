@@ -67,7 +67,7 @@ module Critic::Callbacks
       return unless from
 
       actions = Array(options[to]) + Array(from)
-      options[to] = -> {
+      options[to] = lambda {
         actions.any? { |action|
           authorization.action.to_s == action.to_s
         }
