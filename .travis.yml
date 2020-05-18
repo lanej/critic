@@ -10,6 +10,7 @@ script:
 notifications:
   email: false
 gemfile:
+  - gemfiles/activesupport_5_2.gemfile
   - gemfiles/activesupport_5.gemfile
   - gemfiles/activesupport_4.gemfile
   - gemfiles/activesupport_3.gemfile
